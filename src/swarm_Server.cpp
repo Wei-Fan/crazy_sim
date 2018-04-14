@@ -1,23 +1,23 @@
 #include "ros/ros.h"
 
-#include "easyfly/Swarm_Add.h"
-#include "easyfly/LogBlock.h"
-#include "easyfly/GenericLogData.h"
-#include "easyfly/UpdateParams.h"
-#include "easyfly/att_est.h"
+//#include "easyfly/Swarm_Add.h"
+//#include "easyfly/LogBlock.h"
+//#include "easyfly/GenericLogData.h"
+//#include "easyfly/UpdateParams.h"
+//#include "easyfly/att_est.h"
 #include "std_srvs/Empty.h"
 #include "geometry_msgs/Twist.h"  
-#include "type_methode.h"
+//#include "type_methode.h"
 #include "commons.h"
 #include "std_msgs/Float32.h"
 #include <stdio.h> //sprintf
-#include <easyfly/output.h>
+//#include <easyfly/output.h>
 #include <thread>
 #include <mutex>
 #include "Eigen/Eigen/Eigen"
 #include "sensor_msgs/Imu.h"
 #include "Eigen/Eigen/Geometry"
-#include <crazyflie_cpp/Crazyflie.h>
+//#include <crazyflie_cpp/Crazyflie.h>
 
 using namespace Eigen;
 
@@ -134,9 +134,7 @@ private:
 				  m_output.throttle * 65000); 
           m_sentSetpoint = true;
 	}	
-  	bool emergency(
-    std_srvs::Empty::Request& req,
-    std_srvs::Empty::Response& res)
+  bool emergency(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
   {
     ROS_FATAL("Emergency requested!");
     m_isEmergency = true;
@@ -144,14 +142,14 @@ private:
     return true;
   }
 
-  template<class T, class U>
+  /*template<class T, class U>
   void updateParam(uint8_t id, const std::string& ros_param) {
       U value;
       ros::param::get(ros_param, value);
       m_cf.setParam<T>(id, (T)value);
-  }
+  }*/
 
-  bool updateParams(
+  /*bool updateParams(
     easyfly::UpdateParams::Request& req,
     easyfly::UpdateParams::Response& res)
   {
@@ -194,19 +192,6 @@ private:
       }
     }
     return true;
-  }
-
-  /*void run_test()
-  {
-    //test = !test;
-    int count_test = 0;
-    std::thread::id this_id = std::this_thread::get_id();
-    while(count_test < 100&&ros::ok())//&&!test)
-    {
-      count_test++;
-      printf("thread number *****%d : %d\n",this_id, count_test);
-      ros::Duration(0.5).sleep();
-    }
   }*/
 
   void run()

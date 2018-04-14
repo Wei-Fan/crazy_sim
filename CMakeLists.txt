@@ -67,7 +67,7 @@ add_message_files(
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  Swarm_Add.srv
+  #Swarm_Add.srv
   #UpdateParams.srv
 )
 
@@ -137,20 +137,28 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
+  include/crazy_sim
+)
+
+add_library(crazy_sim
+  src/Crazysim.cpp
+)
+
+include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
 ./include
 )
 
-target_link_libraries(commander ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
-target_link_libraries(swarm_Server ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(swarm_addCf ${catkin_LIBRARIES})
-target_link_libraries(swarm_controller ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+#target_link_libraries(commander ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
+#target_link_libraries(swarm_Server ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+#target_link_libraries(swarm_addCf ${catkin_LIBRARIES})
+#target_link_libraries(swarm_controller ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(commander src/commander.cpp)
-add_executable(swarm_Server src/swarm_Server.cpp)
-add_executable(swarm_addCf src/swarm_addCf.cpp)
-add_executable(swarm_controller src/swarm_controller.cpp)
+#add_executable(commander src/commander.cpp)
+#add_executable(swarm_Server src/swarm_Server.cpp)
+#add_executable(swarm_addCf src/swarm_addCf.cpp)
+#add_executable(swarm_controller src/swarm_controller.cpp)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
