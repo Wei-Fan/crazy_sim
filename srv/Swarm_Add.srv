@@ -1,0 +1,13 @@
+int32 g_vehicle_num
+int32 group_index
+string uri
+string tf_prefix
+float32 roll_trim
+float32 pitch_trim
+bool enable_logging
+bool enable_logging_imu
+bool enable_parameters
+LogBlock[] log_blocks
+bool use_ros_time
+bool enable_logging_att
+---
