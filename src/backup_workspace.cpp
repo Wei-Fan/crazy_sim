@@ -7,46 +7,30 @@
 #include <tf/transform_listener.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TransformStamped.h>
-#include <easyfly/pos_ctrl_sp.h>
-#include <easyfly/raw_ctrl_sp.h>
-#include <easyfly/trj_ctrl_sp.h>
-#include <easyfly/pos_est.h>
-#include <easyfly/att_est.h>
-#include <easyfly/Recording.h>
-#include <vicon_bridge/Markers.h>
-#include <vicon_bridge/Marker.h>
-#include <easyfly/commands.h>
+// #include <easyfly/pos_ctrl_sp.h>
+// #include <easyfly/raw_ctrl_sp.h>
+// #include <easyfly/trj_ctrl_sp.h>
+// #include <easyfly/pos_est.h>
+// #include <easyfly/att_est.h>
+// #include <easyfly/Recording.h>
+// #include <vicon_bridge/Markers.h>
+// #include <vicon_bridge/Marker.h>
+// #include <easyfly/commands.h>
 #include "sensor_msgs/Imu.h"
-#include <easyfly/output.h>
+// #include <easyfly/output.h>
 #include "commons.h"
-#include "control_modified.h"
+// #include "control_modified.h"
 #include <fstream>
 using namespace Eigen;
 using namespace std;
 #define _USE_MATH_DEFINES //PI
 
-int g_joy_num=1;
+// int g_joy_num=1;
 
-double get(
-    const ros::NodeHandle& n,
-    const std::string& name) {
-	if (!n.hasParam(name)){
-		ROS_INFO("No param named%s",name.c_str());
-		return 0.0f;
-	}
-	else{
-		double value;
-    	n.getParam(name, value);
-    	return value;
-	}
-    
-}
-
-class Swarm_Controller: private Controller
+class Controller//: private Controller
 {
 private:
 	int m_group_index;
-	int m_vehicle_num;
 	int m_flight_state, m_flight_mode;
 	bool isFirstPosEst;
 	bool isFirstposSp;
@@ -55,12 +39,12 @@ private:
 
 	//std::vector<vicon_bridge::Marker> m_markers;
 	char m_resFnameRoot[150];
-	struct M_Ctrl
-	{
-		easyfly::pos_ctrl_sp pos;
-		easyfly::raw_ctrl_sp raw;
-		easyfly::trj_ctrl_sp trj;
-	};
+	// struct M_Ctrl
+	// {
+	// 	easyfly::pos_ctrl_sp pos;
+	// 	easyfly::raw_ctrl_sp raw;
+	// 	easyfly::trj_ctrl_sp trj;
+	// };
 	M_Ctrl m_ctrl;
 
 	struct M_Pubs{
@@ -94,7 +78,7 @@ private:
 	ros::Publisher m_RecPub;
 public:
 	
-	Swarm_Controller(
+	Controller(
 		const ros::NodeHandle& n)
 		: isFirstPosEst(true)
 		, isFirstAccIMU(true)
@@ -122,22 +106,22 @@ public:
 		sprintf(m_resFnameRoot,"/home/walt/catkin_ws/src/crazyflie_ros-first_trails/easyfly/resultat/vehicle%d/",m_group_index);
 
 		/*char msg_name[50];
-  		num_vehiclesub = nh.subscribe<crazyflie_driver::num_vehiclepub>("/num_vehiclepub",5,&Swarm_Controller::num_veh_Callback, this);*/
+  		num_vehiclesub = nh.subscribe<crazyflie_driver::num_vehiclepub>("/num_vehiclepub",5,&Controller::num_veh_Callback, this);*/
 		char msg_name[50];
 		sprintf(msg_name,"/vehicle%d/output", m_group_index);
 		m_pubs.m_outputpub = nh.advertise<easyfly::output>(msg_name, 10);
 
 		sprintf(msg_name,"/vehicle%d/pos_est",m_group_index);
-		m_estsub = nh.subscribe<easyfly::pos_est>(msg_name,5,&Swarm_Controller::pos_estCallback, this);
+		m_estsub = nh.subscribe<easyfly::pos_est>(msg_name,5,&Controller::pos_estCallback, this);
 
 		/*sprintf(msg_name,"/vehicle%d/pos_est", m_group_index); 
 		m_pubs.m_pos_estpub = nh.advertise<easyfly::pos_est>(msg_name, 5);*/
 
 		//sprintf(msg_name,"/vicon/crazyflie%d/whole",m_group_index);
-		//m_subs.m_viconsub = nh.subscribe<geometry_msgs::TransformStamped>("/vicon/one_cf/cf",5,&Swarm_Controller::vicon_Callback, this);
+		//m_subs.m_viconsub = nh.subscribe<geometry_msgs::TransformStamped>("/vicon/one_cf/cf",5,&Controller::vicon_Callback, this);
 
 		sprintf(msg_name,"/joygroup%d/joy",0);
-		m_subs.m_joysub = nh.subscribe<sensor_msgs::Joy>(msg_name,5,&Swarm_Controller::joyCb, this);
+		m_subs.m_joysub = nh.subscribe<sensor_msgs::Joy>(msg_name,5,&Controller::joyCb, this);
 		
 		sprintf(msg_name,"/vehicle%d/Recording",m_group_index); //recording data
 		m_RecPub = nh.advertise<easyfly::Recording>(msg_name, 5);
@@ -153,21 +137,21 @@ public:
 		
 		//attitude estimation
 		sprintf(msg_name,"/vehicle%d/att_est",m_group_index);
-		m_subs.m_yawsub = nh.subscribe<easyfly::att_est>(msg_name,5,&Swarm_Controller::att_estCallback, this);
+		m_subs.m_yawsub = nh.subscribe<easyfly::att_est>(msg_name,5,&Controller::att_estCallback, this);
 		
 		sprintf(msg_name,"/vehicle%d/raw_ctrl_sp",m_group_index);
-		m_subs.m_rawsub = nh.subscribe<easyfly::raw_ctrl_sp>(msg_name,5,&Swarm_Controller::rawctrlCallback, this);
+		m_subs.m_rawsub = nh.subscribe<easyfly::raw_ctrl_sp>(msg_name,5,&Controller::rawctrlCallback, this);
 
 		sprintf(msg_name,"/vehicle%d/tf_prefix/Imu",m_group_index);
-		m_subs.cfIMUsub = nh.subscribe<sensor_msgs::Imu>(msg_name,5,&Swarm_Controller::cfIMUCallback, this);
+		m_subs.cfIMUsub = nh.subscribe<sensor_msgs::Imu>(msg_name,5,&Controller::cfIMUCallback, this);
 
 		sprintf(msg_name,"/vehicle%d/pos_ctrl_sp",m_group_index);
-		m_subs.m_possub = nh.subscribe<easyfly::pos_ctrl_sp>(msg_name,5,&Swarm_Controller::posctrlCallback, this);
+		m_subs.m_possub = nh.subscribe<easyfly::pos_ctrl_sp>(msg_name,5,&Controller::posctrlCallback, this);
 
 		sprintf(msg_name,"/vehicle%d/trj_ctrl_sp",m_group_index);
-		m_subs.m_trjsub = nh.subscribe<easyfly::trj_ctrl_sp>(msg_name,5,&Swarm_Controller::trjctrlCallback, this);
+		m_subs.m_trjsub = nh.subscribe<easyfly::trj_ctrl_sp>(msg_name,5,&Controller::trjctrlCallback, this);
 		
-		m_subs.m_cmdsub = nh.subscribe<easyfly::commands>("/commands",5,&Swarm_Controller::cmdCallback, this);
+		m_subs.m_cmdsub = nh.subscribe<easyfly::commands>("/commands",5,&Controller::cmdCallback, this);
 		
 	}
 
@@ -177,7 +161,7 @@ public:
 		node.getParam("/flight_mode", m_flight_mode);
 		//printf("hello!!!\n");
 
-		ros::Timer timer = node.createTimer(ros::Duration(1.0/frequency), &Swarm_Controller::iteration, this);
+		ros::Timer timer = node.createTimer(ros::Duration(1.0/frequency), &Controller::iteration, this);
 		ros::spin();	
 	}
 	void iteration(const ros::TimerEvent& e)
@@ -268,13 +252,13 @@ public:
 		
 	}*/
 
-	void joyCb(const sensor_msgs::Joy::ConstPtr& joy)
-	{
+	// void joyCb(const sensor_msgs::Joy::ConstPtr& joy)
+	// {
 
-		Pitch_Sp = -joy->axes[4] * 30 * DEG2RAD;//+-1
-		Roll_Sp = -joy->axes[3] * 30 * DEG2RAD;
+	// 	Pitch_Sp = -joy->axes[4] * 30 * DEG2RAD;//+-1
+	// 	Roll_Sp = -joy->axes[3] * 30 * DEG2RAD;
 				
-	}
+	// }
 	void att_estCallback(const easyfly::att_est::ConstPtr& est)
 	{	
 		//printf("Att_est!!!  %f    %f    %f\n",(m_est_vecs.m_att_est)(0),(m_est_vecs.m_att_est)(1),(m_est_vecs.m_att_est)(2));
@@ -321,6 +305,7 @@ public:
 			m_recordmsg.Rec_pitch_sp = recording->Rec_pitch_sp;
 		}
 	}
+
 	void rawctrlCallback(const easyfly::raw_ctrl_sp::ConstPtr& ctrl)
 	{	
 		m_ctrl.raw.raw_att_sp.x = ctrl->raw_att_sp.x;
@@ -328,6 +313,7 @@ public:
 		m_ctrl.raw.raw_att_sp.z = ctrl->raw_att_sp.z;
 		m_ctrl.raw.throttle = ctrl->throttle;
 	}
+
 	void pos_estCallback(const easyfly::pos_est::ConstPtr& est)
 	{	
 		if(isFirstPosEst){
@@ -338,35 +324,7 @@ public:
 		m_pos_est(1) = est->pos_est.y;
 		m_pos_est(2) = est->pos_est.z;
 	}
-	/*void vicon_markerCallback(const vicon_bridge::Markers::ConstPtr& msg)
-	{
-		printf("hello vicon_bridge%f\n",m_pos_est(0));
-		m_markers = msg->markers;
-		for (auto& Marker : m_markers)
-    	{	
-    		if(strcmp("Unlabeled0",Marker.marker_name.c_str()))
-    		{	
-    			m_pos_est(0) = Marker.translation.x/1000.0f;
-				m_pos_est(1) = Marker.translation.y/1000.0f;
-				m_pos_est(2) = Marker.translation.z/1000.0f;
-				
-				//printf("%f  %f  %f\n",m_pos_est(0),m_pos_est(1),m_pos_est(2));
-
-				 m_pos_estmsg.pos_est.x = m_pos_est(0);
-				 m_pos_estmsg.pos_est.y = m_pos_est(1);
-				 m_pos_estmsg.pos_est.z = m_pos_est(2);
-				 m_pubs.m_pos_estpub.publish(m_pos_estmsg);
-				 if(isFirstVicon)
-				 {
-					resetposController(&m_pos_est);
-					isFirstVicon = false;
-				 }
-    			//printf("%f\n",Marker.translation.z/1000.0f);
-    		}
-    		//printf("%s\n",Marker.marker_name.c_str());
-    	}
-	}*/
-
+	
 	void posctrlCallback(const easyfly::pos_ctrl_sp::ConstPtr& ctrl)
 	{
 		//printf("posSp in controller: %f %f %f\n",m_sp_vecs.v_posctrl_posSp(0),m_sp_vecs.v_posctrl_posSp(1),m_sp_vecs.v_posctrl_posSp(2) );
@@ -390,9 +348,8 @@ public:
 		
 	}
 	void trjctrlCallback(const easyfly::trj_ctrl_sp::ConstPtr& ctrl)
-	{	
+	{}
 
-	}
 	void cmdCallback(const easyfly::commands::ConstPtr& cmd)
 	{
 		m_cmd.flight_state = cmd->flight_state;
@@ -401,153 +358,155 @@ public:
 	}
 
 };
+
 void Controller::control_nonLineaire(M_recording* m_recording, const Vector3f* pos_est_Vicon, Vector4f* Sp, Vector3f* Vel_ff, Vector3f* acc_Sp, Vector4f* Output, Vector3f* acc_est_IMU, Vector3f* Euler, float dt)
-	{	
-		if(dt<0.1f)
-		{
-			//printf("%f   %f    %f \n", (*pos_est_Vicon)(0),(*pos_est_Vicon)(1),(*pos_est_Vicon)(2));
-			_acc_Sp_W = *acc_Sp;
-			euler2rotation(Euler,&R_est);
-			body2earth(&R_est, acc_est_IMU, &acc_IMU_wd, 3);
-			for(int i=0; i<3; i++){
-				pos_Sp(i) = (*Sp)(i);
-			}
-			/**::position part::**/
-			acc_IMU_wd(2) += GRAVITY/1000.0f;
-			vel_estIMU += acc_IMU_wd*dt; 
-			pos_estIMU += vel_estIMU*dt;
-			pos_estIMU(2) = min(pos_estIMU(2),0.0f);
-
-			float x_temp_est = (*pos_est_Vicon)(0);
-			float y_temp_est = (*pos_est_Vicon)(1);
-			float z_temp_est = (*pos_est_Vicon)(2);
-	
-			float x_sp = pos_Sp(0);
-			float y_sp = pos_Sp(1);
-			float z_sp = pos_Sp(2);
-
-			vel_Sp = *Vel_ff;
-			vel_estVicon(0) = ((*pos_est_Vicon)(0) - l_posVicon(0))/dt;
-			vel_estVicon(1) = ((*pos_est_Vicon)(1) - l_posVicon(1))/dt;
-			vel_estVicon(2) = ((*pos_est_Vicon)(2) - l_posVicon(2))/dt;
-			//vec3f_derivative(&vel_estVicon, pos_est_Vicon, &l_posVicon, dt);
-			l_posVicon(0) = x_temp_est;
-			l_posVicon(1) = y_temp_est;
-			l_posVicon(2) = z_temp_est;
-			//l_possp = pos_Sp;
-	
-			float vx_temp_est = vel_estVicon(0);
-			float vy_temp_est = vel_estVicon(1);
-			float vz_temp_est = vel_estVicon(2);
-
-			//easyfly::pos_est posestMsg;
-			
-			m_recording->Rec_posEst(0) = (*pos_est_Vicon)(0);
-			m_recording->Rec_posEst(1) = (*pos_est_Vicon)(1);
-			m_recording->Rec_posEst(2) = (*pos_est_Vicon)(2);
-
-			m_recording->Rec_velEst(0) = vel_estVicon(0);
-			m_recording->Rec_velEst(1) = vel_estVicon(1);
-			m_recording->Rec_velEst(2) = vel_estVicon(2);
-			//m_posEstPub.publish(posestMsg);
-
-			float vx_sp = vel_Sp(0);
-			float vy_sp = vel_Sp(1);
-			float vz_sp = vel_Sp(2);
-			
-			vel_Sp(0) =  m_pidX.pp_update(x_temp_est , x_sp); //+ff
-			vel_Sp(1) =  m_pidY.pp_update(y_temp_est , y_sp);
-			vel_Sp(2) =  m_pidZ.pp_update(z_temp_est , z_sp);
-
-			//easyfly::pos_ctrl_sp posSpmsg;
-			m_recording->Rec_velSp(0) = vel_Sp(0);
-			m_recording->Rec_velSp(1) = vel_Sp(1);
-			m_recording->Rec_velSp(2) = vel_Sp(2);
-
-			l_velsp = vel_Sp;
-			//printf("%f\n",x_temp_est-x_sp );
-			_acc_Sp_W(0) =  m_pidX.pid_update(vx_temp_est,vel_Sp(0),dt);
-			_acc_Sp_W(1) =  m_pidY.pid_update(vy_temp_est,vel_Sp(1),dt);
-			_acc_Sp_W(2) =  m_pidZ.pid_update(vz_temp_est,vel_Sp(2),dt);
-
-			//_acc_Sp_W(2) =  m_pidVz.pid_update(z_temp_est,pos_Sp(2),dt);
-
-			//vec3f_derivative(&(*acc_Sp), &vel_Sp, &l_velsp, dt);
-			
-			acc_Sp_net = _acc_Sp_W;
-
-			_acc_Sp_W(2) = _acc_Sp_W(2) + GRAVITY/1000.0f * (float)VEHICLE_MASS;
-
-			m_recording->Rec_accSp(0) = _acc_Sp_W(0);
-			m_recording->Rec_accSp(1) = _acc_Sp_W(1);
-			m_recording->Rec_accSp(2) = _acc_Sp_W(2);
-
-			vec3f_passnorm(&_acc_Sp_W, &_Zb_des);
-
-			for (int i=0; i<3; i++)
-				_R_des(i,2) = _Zb_des(i);
-	
-			_Xc_des(0) = cos((*Sp)(3));
-			_Xc_des(1) = sin((*Sp)(3));
-			_Xc_des(2) = 0;
-			
-			/*float yaw_deriv = deriv_f((*Sp)(3),l_yawSp,dt);
-			l_yawSp = (*Sp)(3);*/
-			vec3f_cross(&_Zb_des, &_Xc_des, &_Yb_des);
-			vec3f_normalize(&_Yb_des);
-			vec3f_cross(&_Yb_des, &_Zb_des, &_Xb_des);
-	
-			for (int i=0; i<3; i++)
-			{
-				_R_des(i,0) = _Xb_des(i);
-				_R_des(i,1) = _Yb_des(i);
-			}
-
-			rotation2euler(&_R_des,&RPY_des);
-
-			m_recording->Rec_attEst(0) = (*Euler)(0);
-			m_recording->Rec_attEst(1) = (*Euler)(1);
-			m_recording->Rec_attEst(2) = (*Euler)(2);
-
-			x_sp = RPY_des(0);
-			y_sp = RPY_des(1);
-			z_sp = RPY_des(2);
-
-			for(int i=0;i<2;i++){
-				(*Output)(i) = RPY_des(i);
-			}
-			(*Output)(2) = 0.0f;
-			(*Output)(0) = -(*Output)(0);
-			//(*Output)(2) = RPY_des(2);
-			Vector3f temp;
-			temp.setZero();
-			for(int i=0;i<3;i++){
-				temp(i) = _R_des(i,2);
-			}
-
-			//easyfly::att_est AttMsg;
-			m_recording->Rec_roll_sp = RPY_des(0);
-			m_recording->Rec_pitch_sp = RPY_des(1);
-			m_recording->Rec_yaw_sp = RPY_des(2);
-			//m_attSpPub.publish(AttMsg);
-
-			float thrust_force = vec3f_dot(&_acc_Sp_W,&temp);
-
-			thrust_force /= 440.0f;
-			thrust_force = std::min(thrust_force,max_thrust);
-			(*Output)(3) = thrust_force;		
-
+{	
+	if(dt<0.1f)
+	{
+		//printf("%f   %f    %f \n", (*pos_est_Vicon)(0),(*pos_est_Vicon)(1),(*pos_est_Vicon)(2));
+		_acc_Sp_W = *acc_Sp;
+		euler2rotation(Euler,&R_est);
+		body2earth(&R_est, acc_est_IMU, &acc_IMU_wd, 3);
+		for(int i=0; i<3; i++){
+			pos_Sp(i) = (*Sp)(i);
 		}
+		/**::position part::**/
+		acc_IMU_wd(2) += GRAVITY/1000.0f;
+		vel_estIMU += acc_IMU_wd*dt; 
+		pos_estIMU += vel_estIMU*dt;
+		pos_estIMU(2) = min(pos_estIMU(2),0.0f);
+
+		float x_temp_est = (*pos_est_Vicon)(0);
+		float y_temp_est = (*pos_est_Vicon)(1);
+		float z_temp_est = (*pos_est_Vicon)(2);
+
+		float x_sp = pos_Sp(0);
+		float y_sp = pos_Sp(1);
+		float z_sp = pos_Sp(2);
+
+		vel_Sp = *Vel_ff;
+		vel_estVicon(0) = ((*pos_est_Vicon)(0) - l_posVicon(0))/dt;
+		vel_estVicon(1) = ((*pos_est_Vicon)(1) - l_posVicon(1))/dt;
+		vel_estVicon(2) = ((*pos_est_Vicon)(2) - l_posVicon(2))/dt;
+		//vec3f_derivative(&vel_estVicon, pos_est_Vicon, &l_posVicon, dt);
+		l_posVicon(0) = x_temp_est;
+		l_posVicon(1) = y_temp_est;
+		l_posVicon(2) = z_temp_est;
+		//l_possp = pos_Sp;
+
+		float vx_temp_est = vel_estVicon(0);
+		float vy_temp_est = vel_estVicon(1);
+		float vz_temp_est = vel_estVicon(2);
+
+		//easyfly::pos_est posestMsg;
+		
+		m_recording->Rec_posEst(0) = (*pos_est_Vicon)(0);
+		m_recording->Rec_posEst(1) = (*pos_est_Vicon)(1);
+		m_recording->Rec_posEst(2) = (*pos_est_Vicon)(2);
+
+		m_recording->Rec_velEst(0) = vel_estVicon(0);
+		m_recording->Rec_velEst(1) = vel_estVicon(1);
+		m_recording->Rec_velEst(2) = vel_estVicon(2);
+		//m_posEstPub.publish(posestMsg);
+
+		float vx_sp = vel_Sp(0);
+		float vy_sp = vel_Sp(1);
+		float vz_sp = vel_Sp(2);
+		
+		vel_Sp(0) =  m_pidX.pp_update(x_temp_est , x_sp); //+ff
+		vel_Sp(1) =  m_pidY.pp_update(y_temp_est , y_sp);
+		vel_Sp(2) =  m_pidZ.pp_update(z_temp_est , z_sp);
+
+		//easyfly::pos_ctrl_sp posSpmsg;
+		m_recording->Rec_velSp(0) = vel_Sp(0);
+		m_recording->Rec_velSp(1) = vel_Sp(1);
+		m_recording->Rec_velSp(2) = vel_Sp(2);
+
+		l_velsp = vel_Sp;
+		//printf("%f\n",x_temp_est-x_sp );
+		_acc_Sp_W(0) =  m_pidX.pid_update(vx_temp_est,vel_Sp(0),dt);
+		_acc_Sp_W(1) =  m_pidY.pid_update(vy_temp_est,vel_Sp(1),dt);
+		_acc_Sp_W(2) =  m_pidZ.pid_update(vz_temp_est,vel_Sp(2),dt);
+
+		//_acc_Sp_W(2) =  m_pidVz.pid_update(z_temp_est,pos_Sp(2),dt);
+
+		//vec3f_derivative(&(*acc_Sp), &vel_Sp, &l_velsp, dt);
+		
+		acc_Sp_net = _acc_Sp_W;
+
+		_acc_Sp_W(2) = _acc_Sp_W(2) + GRAVITY/1000.0f * (float)VEHICLE_MASS;
+
+		m_recording->Rec_accSp(0) = _acc_Sp_W(0);
+		m_recording->Rec_accSp(1) = _acc_Sp_W(1);
+		m_recording->Rec_accSp(2) = _acc_Sp_W(2);
+
+		vec3f_passnorm(&_acc_Sp_W, &_Zb_des);
+
+		for (int i=0; i<3; i++)
+			_R_des(i,2) = _Zb_des(i);
+
+		_Xc_des(0) = cos((*Sp)(3));
+		_Xc_des(1) = sin((*Sp)(3));
+		_Xc_des(2) = 0;
+		
+		/*float yaw_deriv = deriv_f((*Sp)(3),l_yawSp,dt);
+		l_yawSp = (*Sp)(3);*/
+		vec3f_cross(&_Zb_des, &_Xc_des, &_Yb_des);
+		vec3f_normalize(&_Yb_des);
+		vec3f_cross(&_Yb_des, &_Zb_des, &_Xb_des);
+
+		for (int i=0; i<3; i++)
+		{
+			_R_des(i,0) = _Xb_des(i);
+			_R_des(i,1) = _Yb_des(i);
+		}
+
+		rotation2euler(&_R_des,&RPY_des);
+
+		m_recording->Rec_attEst(0) = (*Euler)(0);
+		m_recording->Rec_attEst(1) = (*Euler)(1);
+		m_recording->Rec_attEst(2) = (*Euler)(2);
+
+		x_sp = RPY_des(0);
+		y_sp = RPY_des(1);
+		z_sp = RPY_des(2);
+
+		for(int i=0;i<2;i++){
+			(*Output)(i) = RPY_des(i);
+		}
+		(*Output)(2) = 0.0f;
+		(*Output)(0) = -(*Output)(0);
+		//(*Output)(2) = RPY_des(2);
+		Vector3f temp;
+		temp.setZero();
+		for(int i=0;i<3;i++){
+			temp(i) = _R_des(i,2);
+		}
+
+		//easyfly::att_est AttMsg;
+		m_recording->Rec_roll_sp = RPY_des(0);
+		m_recording->Rec_pitch_sp = RPY_des(1);
+		m_recording->Rec_yaw_sp = RPY_des(2);
+		//m_attSpPub.publish(AttMsg);
+
+		float thrust_force = vec3f_dot(&_acc_Sp_W,&temp);
+
+		thrust_force /= 440.0f;
+		thrust_force = std::min(thrust_force,max_thrust);
+		(*Output)(3) = thrust_force;		
+
 	}
+}
+
 int main(int argc, char **argv)
 {
 	char node_name[50];
-	ros::init(argc, argv, "Swarm_Controller");
+	ros::init(argc, argv, "controller");
 	ros::NodeHandle n("~");
 
-	n.getParam("/joy_num", g_joy_num);
-	Swarm_Controller Swarm_Controller(n);
+	//n.getParam("/joy_num", g_joy_num);
+	Controller sc(n);
 
-	Swarm_Controller.run(50);
+	sc.run(50);
 	return 0;
 }

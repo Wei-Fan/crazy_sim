@@ -140,9 +140,9 @@ include_directories(
   include/crazy_sim
 )
 
-add_library(crazy_sim
-  src/Crazysim.cpp
-)
+#add_library(crazy_sim
+#  src/Crazysim.cpp
+#)
 
 include_directories(
 # include
@@ -150,15 +150,15 @@ include_directories(
 ./include
 )
 
-#target_link_libraries(commander ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
-#target_link_libraries(swarm_Server ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-#target_link_libraries(swarm_addCf ${catkin_LIBRARIES})
-#target_link_libraries(swarm_controller ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-
 #add_executable(commander src/commander.cpp)
 #add_executable(swarm_Server src/swarm_Server.cpp)
 #add_executable(swarm_addCf src/swarm_addCf.cpp)
-#add_executable(swarm_controller src/swarm_controller.cpp)
+add_executable(sim_controller src/sim_controller.cpp)
+
+#target_link_libraries(commander ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
+#target_link_libraries(swarm_Server ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+#target_link_libraries(swarm_addCf ${catkin_LIBRARIES})
+target_link_libraries(sim_controller ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

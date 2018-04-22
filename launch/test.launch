@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<launch>
+  <group ns="vehicle1">
+      <node pkg="crazy_sim" type="sim_controller" name="sim_controller" output="screen">
+          <param name="group_index" value="1" type="int"/>
+      </node>
+  </group>
+
+
+  <group ns="vehicle2">
+      <node pkg="crazy_sim" type="sim_controller" name="sim_controller" output="screen">
+          <param name="group_index" value="2" type="int"/>
+      </node>
+  </group>
+
+    <group ns="vehicle3">
+      <node pkg="crazy_sim" type="sim_controller" name="sim_controller" output="screen">
+          <param name="group_index" value="3" type="int"/>
+      </node>
+  </group>
+
+</launch>
