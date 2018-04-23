@@ -20,4 +20,16 @@
       </node>
   </group>
 
+    <group ns="vehicle4">
+      <node pkg="crazy_sim" type="sim_controller" name="sim_controller" output="screen">
+          <param name="group_index" value="4" type="int"/>
+      </node>
+  </group>
+
+    <group ns="vehicle5">
+      <node pkg="crazy_sim" type="sim_controller" name="sim_controller" output="screen">
+          <param name="group_index" value="5" type="int"/>
+      </node>
+  </group>
+
 </launch>

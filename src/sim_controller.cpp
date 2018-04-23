@@ -68,13 +68,14 @@ public:
 		pose.pose.position.y = 0;
 		pose.pose.position.z = 2;
 
+		// ROS_INFO("uav%d ~~~~~~ 1", m_group_index);
 		for (int i = 100; i > 0 && ros::ok(); --i)
 		{
 			local_pos_pub.publish(pose);
 			ros::spinOnce();
 			rate.sleep();
 		}
-		
+
 		offb_set_mode.request.custom_mode = "OFFBOARD";
 		arm_cmd.request.value = true;
 		last_request = ros::Time::now();
@@ -85,17 +86,21 @@ public:
 
 	void iteration(const ros::TimerEvent& e)
 	{
-		//ROS_INFO("iteration~~~");
-		if (current_state.mode != "OFFBOARD" &&	(ros::Time::now()-last_request > ros::Duration(5.0)))
-		{
+		// ROS_INFO("iteration~~~");
+		if (current_state.mode != "OFFBOARD" &&	(ros::Time::now()-last_request > ros::Duration(3.0)))
+		{	
+
+			// ROS_INFO("uav%d ~~~~~~~~~ 1", m_group_index);
 			if (set_mode_client.call(offb_set_mode) &&
 				offb_set_mode.response.mode_sent)
 			{
 				ROS_INFO("Offboard enabled");
 			}
 		}else{
-			if (!current_state.armed && (ros::Time::now()-last_request>ros::Duration(5.0)))
+			// ROS_INFO("uav%d ~~~~~~~~~~ 2", m_group_index);
+			if (!current_state.armed && (ros::Time::now()-last_request>ros::Duration(3.0)))
 			{
+				// ROS_INFO("uav%d ~~~~~~~~~~~ 3", m_group_index);
 				if (arming_client.call(arm_cmd) && arm_cmd.response.success)
 				{
 					ROS_INFO("Vehicle armed");
