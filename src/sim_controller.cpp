@@ -29,6 +29,7 @@ private:
 	    Commanding = 2,
 	    Hovering = 3,
   	}m_flight_mode;
+  	// int secure_count;
 
 	void stateCallback(const mavros_msgs::State::ConstPtr& msg)
 	{
@@ -43,6 +44,7 @@ private:
 public:
 	SimController()
 	:m_flight_mode(TakingOff)
+	// ,secure_count(100)
 	{
 		ros::NodeHandle nh("~");//~ means private param
 		nh.getParam("group_index", m_group_index);
@@ -90,6 +92,7 @@ public:
 		pose.pose.position.x = 0;
 		pose.pose.position.y = 0;
 		pose.pose.position.z = 2;
+		pos_ctrl_sp = pose;
 
 		// ROS_INFO("uav%d ~~~~~~ 1", m_group_index);
 		for (int i = 100; i > 0 && ros::ok(); --i)
@@ -126,17 +129,19 @@ public:
 				ROS_INFO("uav%d Vehicle armed", m_group_index);
 			}
 			last_request = ros::Time::now();
-		}else if (current_state.armed && (ros::Time::now()-last_request>ros::Duration(6.0)))
+		}else if (current_state.armed)// && (ros::Time::now()-last_request>ros::Duration(6.0))) //secure_count >=0
 		{
 			m_flight_mode = Commanding;
-			flight_mode_pub.publish(int(m_flight_mode));
+			// flight_mode_pub.publish(int(m_flight_mode));
+			// ROS_INFO("current_state.armed : %d",current_state.armed);
+			// secure_count--;
 		}
 
 		/*controller*/
 		if (m_flight_mode == Commanding)
 		{
-			//ROS_INFO("uav%d Commanding", m_group_index);
-			//pose = pos_ctrl_sp;
+			// ROS_INFO("uav%d Commanding", m_group_index);
+			pose = pos_ctrl_sp;
 		}
 		local_pos_pub.publish(pose);
 	}
