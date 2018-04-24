@@ -1,12 +1,23 @@
 <?xml version="1.0"?>
 
 <launch>
+  <arg name="vehicle_number" default="5" />
+
+  <node pkg="crazy_sim" type="sim_commander" name="sim_commander" output="screen">
+      <param name="vehicle_number" value="$(arg vehicle_number)" type="int" />
+  </node>
+
+  <group ns="vehicle0">
+      <node pkg="crazy_sim" type="sim_controller" name="sim_controller" output="screen">
+          <param name="group_index" value="0" type="int"/>
+      </node>
+  </group>
+
   <group ns="vehicle1">
       <node pkg="crazy_sim" type="sim_controller" name="sim_controller" output="screen">
           <param name="group_index" value="1" type="int"/>
       </node>
   </group>
-
 
   <group ns="vehicle2">
       <node pkg="crazy_sim" type="sim_controller" name="sim_controller" output="screen">
@@ -23,12 +34,6 @@
     <group ns="vehicle4">
       <node pkg="crazy_sim" type="sim_controller" name="sim_controller" output="screen">
           <param name="group_index" value="4" type="int"/>
-      </node>
-  </group>
-
-    <group ns="vehicle5">
-      <node pkg="crazy_sim" type="sim_controller" name="sim_controller" output="screen">
-          <param name="group_index" value="5" type="int"/>
       </node>
   </group>
 

@@ -92,6 +92,8 @@ find_package(Boost REQUIRED COMPONENTS
 #  bind
   REQUIRED)
 
+FIND_PACKAGE(OpenCV REQUIRED)
+
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
 ################################################
@@ -150,12 +152,12 @@ include_directories(
 ./include
 )
 
-#add_executable(commander src/commander.cpp)
+add_executable(sim_commander src/sim_commander.cpp)
 #add_executable(swarm_Server src/swarm_Server.cpp)
 #add_executable(swarm_addCf src/swarm_addCf.cpp)
 add_executable(sim_controller src/sim_controller.cpp)
 
-#target_link_libraries(commander ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(sim_commander ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
 #target_link_libraries(swarm_Server ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 #target_link_libraries(swarm_addCf ${catkin_LIBRARIES})
 target_link_libraries(sim_controller ${catkin_LIBRARIES} ${Boost_LIBRARIES})

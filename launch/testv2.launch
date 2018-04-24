@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="vehicle_number" default="5" />
+
+  <node pkg="crazy_sim" type="sim_commander" name="sim_commander" output="screen">
+      <param name="vehicle_number" value="$(arg vehicle_number)" type="int" />
+  </node>
+
+</launch>
